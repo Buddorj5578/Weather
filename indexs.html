@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Цаг Агаар | Дэлхийн Хотууд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* Үндсэн дизайн */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#07090f;
+  --c-surface:rgba(255,255,255,0.04);
+  --c-glass:rgba(255,255,255,0.07);
+  --c-glass-border:rgba(255,255,255,0.1);
+  --c-text:#f0ede8;
+  --c-muted:rgba(240,237,232,0.5);
+  --c-accent:#f4a544;
+  --c-accent2:#e8794a;
+  --font-display:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+body{font-family:var(--font-body);background:var(--c-bg);color:var(--c-text);min-height:100vh;overflow-x:hidden;position:relative;}
+#bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 10%, #0d1a3a 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 90%, #1a0d1a 0%, transparent 60%), #07090f;}
+#bg-orb{position:fixed;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:0.18;top:-100px;left:-100px;background:radial-gradient(circle, #f4a544, #e8794a);pointer-events:none;z-index:0;animation:orbFloat 12s ease-in-out infinite;}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(80px,40px) scale(1.05)} 66%{transform:translate(-40px,80px) scale(0.95)}}
+#root{position:relative;z-index:1;min-height:100vh;padding:0 0 4rem}
+header{padding:2rem 2.5rem 1rem;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--c-accent);}
+.logo span{color:var(--c-text);font-weight:400}
+.search-wrap{padding:0 2.5rem;margin-bottom:3rem;}
+.search-box{display:flex;background:var(--c-glass);border:1px solid var(--c-glass-border);border-radius:16px;max-width:580px;backdrop-filter:blur(20px);}
+#city-input{flex:1;background:transparent;border:none;outline:none;color:var(--c-text);font-size:15px;padding:14px 20px;}
+#search-btn{margin:6px;padding:0 1.5rem;background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));border:none;border-radius:10px;color:#1a0d00;font-weight:700;cursor:pointer;}
+.quick-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;max-width:800px;}
+.q-btn{font-size:12px;padding:5px 13px;border-radius:999px;background:var(--c-surface);border:1px solid var(--c-glass-border);color:var(--c-muted);cursor:pointer;}
+.content{padding:0 2.5rem}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6rem 0;gap:1.5rem;}
+.loader-ring{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,0.08);border-top:2px solid var(--c-accent);animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero{display:grid;grid-template-columns:1fr auto;gap:2rem;max-width:900px;margin-bottom:2rem;animation:fadeIn 0.5s ease;}
+.temp-big{font-family:var(--font-display);font-size:clamp(80px,14vw,140px);font-weight:800;color:var(--c-accent);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;max-width:900px;}
+.stat-card{background:var(--c-glass);border:1px solid var(--c-glass-border);border-radius:16px;padding:1.25rem;}
+.forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-width:900px;margin-top:1rem;}
+.fc-card{background:var(--c-glass);border:1px solid var(--c-glass-border);border-radius:14px;padding:1rem 0.75rem;text-align:center;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="bg-orb"></div>
+
+<div id="root">
+  <header>
+    <div class="logo">Цаг<span> агаар</span></div>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <input id="city-input" type="text" list="city-list" placeholder="Хот хайна уу (Англиар)..."/>
+      <button id="search-btn" onclick="doSearch()">Хайх</button>
+    </div>
+    
+    <datalist id="city-list">
+      <option value="Ulaanbaatar"><option value="Tokyo"><option value="Seoul"><option value="Beijing">
+      <option value="London"><option value="Paris"><option value="Washington"><option value="Moscow">
+      <option value="Berlin"><option value="Astana"><option value="Bangkok"><option value="Singapore">
+      <option value="Canberra"><option value="Ottawa"><option value="Rome"><option value="Madrid">
+      <option value="Dubai"><option value="New Delhi"><option value="Cairo"><option value="Brasilia">
+    </datalist>
+
+    <div class="quick-row">
+      <button class="q-btn" onclick="qs('Ulaanbaatar')">🇲🇳 Улаанбаатар</button>
+      <button class="q-btn" onclick="qs('Tokyo')">🇯🇵 Токио</button>
+      <button class="q-btn" onclick="qs('Seoul')">🇰🇷 Сеул</button>
+      <button class="q-btn" onclick="qs('London')">🇬🇧 Лондон</button>
+      <button class="q-btn" onclick="qs('Paris')">🇫🇷 Парис</button>
+      <button class="q-btn" onclick="qs('Washington')">🇺🇸 Вашингтон</button>
+      <button class="q-btn" onclick="qs('Moscow')">🇷🇺 Москва</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div style="text-align:center;padding:5rem 0;color:var(--c-muted);">
+      <p style="font-size:18px;">Хотын нэрээ бичээд хайна уу</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Таны WeatherAPI түлхүүр
+const API_KEY = '2c2546d176c3488aae5103336262704'; 
+
+function qs(city){
+  document.getElementById('city-input').value = city;
+  doSearch();
+}
+
+async function doSearch(){
+  const city = document.getElementById('city-input').value.trim();
+  if(!city) return;
+  
+  const content = document.getElementById('content');
+  content.innerHTML = `<div class="loading"><div class="loader-ring"></div><p>Мэдээллийг татаж байна...</p></div>`;
+
+  try {
+    // lang=mn болгож зассан бөгөөд WeatherAPI-аас шууд дуудаж байна
+    const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=5&aqi=no&lang=mn`);
+    if(!res.ok) throw new Error("Хот олдсонгүй");
+    const data = await res.json();
+    renderWeather(data);
+  } catch (err) {
+    content.innerHTML = `<div style="text-align:center;padding:5rem 0;"><h3>Алдаа: ${err.message}</h3></div>`;
+  }
+}
+
+function renderWeather(w) {
+  const content = document.getElementById('content');
+  const forecastHTML = w.forecast.forecastday.map(f => `
+    <div class="fc-card">
+      <div style="font-size:11px;color:var(--c-muted)">${f.date}</div>
+      <img src="${f.day.condition.icon}" width="35">
+      <div style="font-size:16px;font-weight:700">${Math.round(f.day.maxtemp_c)}°</div>
+      <div style="font-size:11px;color:var(--c-muted)">${f.day.condition.text}</div>
+    </div>
+  `).join('');
+
+  content.innerHTML = `
+    <div class="hero">
+      <div>
+        <div style="color:var(--c-accent)">${w.location.country}</div>
+        <div style="font-size:40px;font-weight:800;">${w.location.name}</div>
+        <div style="color:var(--c-muted);margin-bottom:1rem">${w.current.condition.text}</div>
+        <div class="temp-big">${Math.round(w.current.temp_c)}°C</div>
+      </div>
+      <div><img src="${w.current.condition.icon}" width="100" style="filter:drop-shadow(0 0 15px var(--c-accent))"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div>💧 Чийгшил</div><div style="font-size:20px;font-weight:700">${w.current.humidity}%</div></div>
+      <div class="stat-card"><div>🌬 Салхи</div><div style="font-size:20px;font-weight:700">${w.current.wind_kph} км/ц</div></div>
+      <div class="stat-card"><div>☀️ UV Индекс</div><div style="font-size:20px;font-weight:700">${w.current.uv}</div></div>
+      <div class="stat-card"><div>🌡 Мэдрэгдэх</div><div style="font-size:20px;font-weight:700">${w.current.feelslike_c}°C</div></div>
+    </div>
+
+    <h4 style="margin-top:2rem;color:var(--c-muted);text-transform:uppercase;font-size:12px;">5 хоногийн таамаглал</h4>
+    <div class="forecast-grid">${forecastHTML}</div>
+  `;
+}
+</script>
+</body>
+</html>
